@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import pickle
 import json
+import joblib
 
 
 app = FastAPI()
@@ -40,7 +41,9 @@ class model_input(BaseModel):
 
 
 # loading the saved model
-loan_prediction_model = pickle.load(open('loan_prediction_model.sav', 'rb'))
+# loan_prediction_model = pickle.load(open('loan_prediction_model.sav', 'rb'))
+loan_prediction_model = joblib.load('loan_prediction_model.sav')
+
 
 @app.post('/loan_default_prediction')
 def loan_prediction(input_parameters : model_input):

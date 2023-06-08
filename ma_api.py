@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import pickle
+import cloudpickle
 import json
-import joblib
-from sklearn.utils import _joblib
+# import joblib
+# from sklearn.utils import _joblib
 import numpy as np
 
 
@@ -12,7 +12,8 @@ app = FastAPI()
 
 def _randomstate_ctor(seed=None):
     return np.random.mtrand._rand
-joblib._randomstate_ctor = _randomstate_ctor
+
+np.random.RandomState = _randomstate_ctor
 
 
 class model_input(BaseModel):
@@ -50,7 +51,12 @@ class model_input(BaseModel):
 
 # loading the saved model
 # loan_prediction_model = pickle.load(open('loan_prediction_model.sav', 'rb'))
-loan_prediction_model = joblib.load('loan_prediction_model.sav')
+# loan_prediction_model = joblib.load('loan_prediction_model.sav')
+
+# Load the saved model
+with open('loan_prediction_model.pkl', 'rb') as file:
+    loan_prediction_model = cloudpickle.load(file)
+
 
 
 @app.post('/loan_default_prediction')

@@ -54,7 +54,7 @@ class model_input(BaseModel):
 # loan_prediction_model = joblib.load('loan_prediction_model.sav')
 
 # Load the saved model
-with open('loan_prediction_model.pkl', 'rb') as file:
+with open('loan_prediction_model.sav', 'rb') as file:
     loan_prediction_model = cloudpickle.load(file)
 
 

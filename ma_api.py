@@ -3,9 +3,17 @@ from pydantic import BaseModel
 import pickle
 import json
 import joblib
+from sklearn.utils import _joblib
+import numpy as np
+
 
 
 app = FastAPI()
+
+def _randomstate_ctor():
+    return np.random.mtrand._rand
+_joblib._randomstate_ctor = _randomstate_ctor
+
 
 class model_input(BaseModel):
     

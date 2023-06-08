@@ -10,9 +10,9 @@ import numpy as np
 
 app = FastAPI()
 
-def _randomstate_ctor():
+def _randomstate_ctor(seed=None):
     return np.random.mtrand._rand
-_joblib._randomstate_ctor = _randomstate_ctor
+joblib._randomstate_ctor = _randomstate_ctor
 
 
 class model_input(BaseModel):

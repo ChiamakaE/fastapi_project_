@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
 import numpy as np
+from sklearn.dummy import DummyClassifier
+from numpy.random import RandomState
 
 app = FastAPI()
 
@@ -34,6 +36,10 @@ class model_input(BaseModel):
     guarantor_zone: int
     guarantor_lga: int
     guarantor_state: int
+
+# Create a DummyClassifier object with a random state
+random_state = RandomState(42)  # Replace 42 with any desired seed value
+classifier = DummyClassifier(random_state=random_state)
 
 # Loading the saved model
 loan_prediction_model = joblib.load("loan_prediction_model.pkl")

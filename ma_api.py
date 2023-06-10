@@ -2,87 +2,77 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
 import numpy as np
-from sklearn.dummy import DummyClassifier
-from numpy.random import RandomState
+import pandas as pd
 
 app = FastAPI()
 
-class model_input(BaseModel):
-    gender: int
-    marital_status: int
-    date_of_birth: int
-    employment: int
+class ModelInput(BaseModel):
+    gender: str
+    marital_status: str
+    employment: str
     income_per_month: int
-    loan_type: int
-    applicants_job_role_sector: int
-    repayment_type: int
-    collateral_type: int
+    loan_type: str
+    applicants_job_role_sector: str
+    collateral_type: str
     collateral_value: int
-    guarantor_dob: int
-    guarantor_relationship: int
-    guarantor_employment: int
-    guarantor_other_sources_of_income: int
+    guarantor_relationship: str
+    guarantor_employment: str
+    guarantor_other_sources_of_income: str
     guarantor_income_per_month: int
     loan_amount: int
-    applicant_job_role: int
-    applicant_job_sector: int
+    applicant_job_role: str
+    applicant_job_sector: str
     age: int
     guarantor_age: int
-    applicant_street: int
-    applicant_zone: int
-    applicant_lga: int
-    applicant_state: int
-    guarantor_street: int
-    guarantor_zone: int
-    guarantor_lga: int
-    guarantor_state: int
+    applicant_lga: str
+    applicant_state: str
+    guarantor_lga: str
+    guarantor_state: str
 
-# Create a DummyClassifier object with a random state
-random_state = RandomState(42)  # Replace 42 with any desired seed value
-classifier = DummyClassifier(random_state=random_state)
+# Load the trained model
+loan_prediction_model = joblib.load("predict_model.pkl")
 
-# Loading the saved model
-loan_prediction_model = joblib.load("loan_model.pkl")
+
 
 @app.post('/loan_default_prediction')
-def loan_prediction(input_parameters: model_input):
-    input_data = input_parameters.dict()
+def predict_loan_default(model_input: ModelInput):
+    input_dict = model_input.dict()
+    input_df = pd.DataFrame([input_dict])  # Convert input_dict to a DataFrame
+    input_list = input_df.values  # Get the column values as a NumPy array
 
-    # Extract input values from input_data dictionary
-    gen = input_data['gender']
-    mar = input_data['marital_status']
-    dob = input_data['date_of_birth']
-    emp = input_data['employment']
-    incom = input_data['income_per_month']
-    loant = input_data['loan_type']
-    ajrs = input_data['applicants_job_role_sector']
-    repayt = input_data['repayment_type']
-    collt = input_data['collateral_type']
-    collv = input_data['collateral_value']
-    gdob = input_data['guarantor_dob']
-    grel = input_data['guarantor_relationship']
-    gemp = input_data['guarantor_employment']
-    gosi = input_data['guarantor_other_sources_of_income']
-    gipm = input_data['guarantor_income_per_month']
-    loana = input_data['loan_amount']
-    ajr = input_data['applicant_job_role']
-    ajs = input_data['applicant_job_sector']
-    ag = input_data['age']
-    gage = input_data['guarantor_age']
-    astr = input_data['applicant_street']
-    azone = input_data['applicant_zone']
-    alga = input_data['applicant_lga']
-    astate = input_data['applicant_state']
-    gstreet = input_data['guarantor_street']
-    gzone = input_data['guarantor_zone']
-    glga = input_data['guarantor_lga']
-    gstate = input_data['guarantor_state']
+      # Get the column values excluding the first column
 
-    input_list = [[gen, mar, dob, emp, incom, loant, ajrs, repayt, collt, collv, gdob, grel, gemp, gosi, gipm, loana, ajr, ajs, ag, gage, astr, azone, alga, astate, gstreet, gzone, glga, gstate]]
+    input_list = [[
+        input_dict['gender'],
+        input_dict['marital_status'],
+        input_dict['employment'],
+        input_dict['income_per_month'],
+        input_dict['loan_type'],
+        input_dict['applicants_job_role_sector'],
+        input_dict['collateral_type'],
+        input_dict['collateral_value'],
+        input_dict['guarantor_relationship'],
+        input_dict['guarantor_employment'],
+        input_dict['guarantor_other_sources_of_income'],
+        input_dict['guarantor_income_per_month'],
+        input_dict['loan_amount'],
+        input_dict['applicant_job_role'],
+        input_dict['applicant_job_sector'],
+        input_dict['age'],
+        input_dict['guarantor_age'],
+        input_dict['applicant_lga'],
+        input_dict['applicant_state'],
+        input_dict['guarantor_lga'],
+        input_dict['guarantor_state'],
+    ]]
 
-    prediction = loan_prediction_model.predict(input_list)
+    prediction = loan_prediction_model.predict(input_df)
 
     if prediction[0] == 0:
         return 'Applicant will not default'
     else:
         return 'Applicant will default'
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8003)

@@ -42,7 +42,7 @@ random_state = RandomState(42)  # Replace 42 with any desired seed value
 classifier = DummyClassifier(random_state=random_state)
 
 # Loading the saved model
-loan_prediction_model = joblib.load("loan_prediction_model.pkl")
+loan_prediction_model = joblib.load("loan_model.pkl")
 
 @app.post('/loan_default_prediction')
 def loan_prediction(input_parameters: model_input):

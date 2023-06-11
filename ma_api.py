@@ -12,7 +12,6 @@ class ModelInput(BaseModel):
     employment: str
     income_per_month: int
     loan_type: str
-    applicants_job_role_sector: str
     collateral_type: str
     collateral_value: int
     guarantor_relationship: str
@@ -24,10 +23,6 @@ class ModelInput(BaseModel):
     applicant_job_sector: str
     age: int
     guarantor_age: int
-    applicant_lga: str
-    applicant_state: str
-    guarantor_lga: str
-    guarantor_state: str
 
 # Load the trained model
 loan_prediction_model = joblib.load("predict_model.pkl")
@@ -48,7 +43,6 @@ def predict_loan_default(model_input: ModelInput):
         input_dict['employment'],
         input_dict['income_per_month'],
         input_dict['loan_type'],
-        input_dict['applicants_job_role_sector'],
         input_dict['collateral_type'],
         input_dict['collateral_value'],
         input_dict['guarantor_relationship'],
@@ -59,19 +53,23 @@ def predict_loan_default(model_input: ModelInput):
         input_dict['applicant_job_role'],
         input_dict['applicant_job_sector'],
         input_dict['age'],
-        input_dict['guarantor_age'],
-        input_dict['applicant_lga'],
-        input_dict['applicant_state'],
-        input_dict['guarantor_lga'],
-        input_dict['guarantor_state'],
     ]]
 
     prediction = loan_prediction_model.predict(input_df)
 
+
     if prediction[0] == 0:
-        return 'Applicant will not default'
+        result = {"status": "success", "loanEligibility": "true"}
     else:
-        return 'Applicant will default'
+        result = {"status": "success", "loanEligibility": "false"}
+
+    return result
+
+
+    
+    
+
+   
 
 if __name__ == '__main__':
     import uvicorn
